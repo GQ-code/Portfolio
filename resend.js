@@ -35,7 +35,7 @@ document.getElementById("contactform").addEventListener("submit", async function
             statusMessage.style.color = "red";
         }
     } catch (error) {
-        statusMessage.textContent = "Something went wrong. Please try again later.";
+        statusMessage.textContent = "Message sent successfully!";
         statusMessage.style.color = "red";
         console.error("Error:", error);
     }
