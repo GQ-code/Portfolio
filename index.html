@@ -46,7 +46,8 @@
                  	<!-- About section -->
                 	<div class="about">
                     	<div class="Resume Photo-inner">
-                            <img src="images/Resume Photo.jpg" height="186" width="153" /></li>
+                            <img src="profile-pic" height="186" width="153" /></li>
+                            <p id="bio"></p>
                         </div>
                         <h1>Gabriel Quezada</h1>
                         <h3>Software Engineer</h3>
@@ -267,7 +268,7 @@
 
                         <li><a href="" class="current transition" data-filter="*">All</a></li>
 
-                        <li><a href="" class="transition" data-filter=".games">Games</a></li>
+                        <li><a href="" class="transition" data-filter=".foundational">Foundational</a></li>
 
                         <li><a href="" class="transition" data-filter=".apps">Apps</a></li>
 
@@ -285,11 +286,11 @@
                     <div class="extra-text">Here are some of the projects that I have worked on!</div>
                     <ul id="portfolio-list">
 
-                        <li class="java mixed webdev">
+                        <li class="java mixed apps">
                             <a href="https://github.com/Silvano-Romero/VirtualDressup" target=_blank>
                                 <img src="portfolio/Code.jpg" alt="">
                                 <h2 class="title">Virtual Dress Up</h2>
-                                <span class="categorie">Java / Web Development</span> 
+                                <span class="categorie">Java / Apps</span> 
                             </a>
                     	</li>
                         
@@ -309,18 +310,18 @@
                             </a>
                     	</li>
 
-                        <li class="games python">
+                        <li class="foundational python">
                             <a href="https://replit.com/@gabrielq3/Dragon-Slayer#main.py" target="_blank">
                                 <img src="portfolio/17-thumb.jpg" alt="" >
                                 <h2 class="title">Dragon Slayer</h2>
-                                <span class="categorie">Games / Python</span> 
+                                <span class="categorie">Foundational / Python</span> 
                             </a>
                     	</li>                        
-                        <li class="games python">
+                        <li class="foundational python">
                             <a href="https://replit.com/@gabrielq3/Monster-Dungeon#entity.py" target="_blank">
                                 <img src="portfolio/20-thumb.jpg" alt="" >                            
                                 <h2 class="title">Monster Dungeon</h2>
-                                <span class="categorie">Games / Python</span> 
+                                <span class="categorie">Foundational / Python</span> 
                             </a>
                     	</li>
                         <li class="mixed cplus">
@@ -414,6 +415,8 @@
         <!--[if IEMobile]> 
     <link rel="stylesheet" type="text/css" href="css/iemobile.css"/>
     <![endif]--> 
+
+    
     
     <script type="text/javascript" src="js/jquery.min.js"></script>
     <script type="text/javascript" src="js/jquery.easytabs.min.js"></script>
@@ -425,6 +428,59 @@
     <script type="text/javascript" src="js/jquery.carousel.js"></script>
     <script type="text/javascript" src="js/plugins.js"></script>
     <script type="text/javascript" src="js/custom.js"></script>
+
+    <script>
+        fetch('https://api.github.com/users/GQ-code')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('profile-pic').src = data.avatar_url;
+                document.getElementById('bio').textContent = data.bio;
+            })
+            .catch(error => console.error('Error fetching GitHub data:', error));
+    </script>
+
+    <script>
+        document.getElementById('contactform').addEventListener('submit', async function (event) {
+          event.preventDefault(); // Prevent form from submitting traditionally
+          
+          // Get form data
+          const name = document.querySelector('input[name="name"]').value;
+          const email = document.querySelector('input[name="email"]').value;
+          const message = document.querySelector('textarea[name="message"]').value;
+          
+          // Data to send to the server (or directly to Resend API)
+          const formData = {
+            name: name,
+            email: email,
+            message: message
+          };
+          
+          // Display loading status
+          document.getElementById('contact-status').innerText = 'Sending...';
+          
+          try {
+            const response = await fetch('/send-email', {  // Replace '/send-email' with your server endpoint
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(formData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+              document.getElementById('contact-status').innerText = 'Message sent successfully!';
+            } else {
+              document.getElementById('contact-status').innerText = 'Something went wrong, please try again.';
+            }
+            
+          } catch (error) {
+            document.getElementById('contact-status').innerText = 'Error sending message. Please try again later.';
+            console.error(error);
+          }
+        });
+      </script>
 
     <!--[if lt IE 9]>
         <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
