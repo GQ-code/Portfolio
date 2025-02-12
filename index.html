@@ -390,7 +390,7 @@
                     <div class="contact-form">
                         <h3 class="main-heading"><span>Let's keep in touch</span></h3>
                         <div id="contact-status"></div>
-                        <form action="" id="contactform">
+                        <form action="" id="contactform1">
                             <p>
                             	<label for="name">Your Name</label>
                             	<input type="text" name="name" id="name" class="input" >
@@ -479,54 +479,48 @@
     });
     </script>
 
+    
     <script>
-        document.getElementById("contactform").addEventListener("submit", async function(event) {
-            event.preventDefault();
+        document.getElementById("contactform1").addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-            const name = document.getElementById("name").value;
-            const email = document.getElementById("email").value;
-            const message = document.getElementById("message").value;
-            const statusMessage = document.getElementById("contact-status");
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const message = document.getElementById("message").value.trim();
+        const statusMessage = document.getElementById("contact-status");
 
-            // Prepare request body
-            const emailData = {
-                from: `${email}`, 
-                to: "g.quezada03@yahoo.com",
-                subject: `New Message from ${name}`,
-                html: `<p><strong>Name:</strong> ${name}</p>
-                    <p><strong>Email:</strong> ${email}</p>
-                    <p><strong>Message:</strong> ${message}</p>`
-            };
+        if (!name || !email || !message) {
+            statusMessage.textContent = "All fields are required.";
+            statusMessage.style.color = "red";
+            return;
+        }
 
-            try {
-                const response = await fetch("https://api.resend.com/emails", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": "Bearer re_dc1JySV9_2Bg4wwvUwREZgmzrxNHcVP2V"
-                    },
-                    body: JSON.stringify(emailData)
-                });
+        try {
+            const response = await fetch("http://localhost:5000/send-email", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name, email, message }),
+            });
 
-                console.log("Response status:", response.status);  // Log the response status
+            const data = await response.json();
+            console.log("Response:", data);
 
-                const responseBody = await response.json();  // Capture the response body
-                console.log("Response body:", responseBody); // Log the response body
-
-                if (response.ok) {
-                    statusMessage.textContent = "Message sent successfully!";
-                    statusMessage.style.color = "green";
-                    document.getElementById("contactform").reset();
-                } else {
-                    statusMessage.textContent = "Error sending message. Please try again.";
-                    statusMessage.style.color = "red";
-                }
-                } catch (error) {
-                statusMessage.textContent = "Something went wrong. Please try again later.";
+            if (data.success) {
+                statusMessage.textContent = "Message sent successfully!";
+                statusMessage.style.color = "green";
+                document.getElementById("contactform1").reset();
+            } else {
+                statusMessage.textContent = "Error sending message.";
                 statusMessage.style.color = "red";
-                console.error("Error:", error);
-                }
-        });
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            statusMessage.textContent = "Something went wrong.";
+            statusMessage.style.color = "red";
+        }
+    });
     </script>
 
     <!--[if lt IE 9]>
