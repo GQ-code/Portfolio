@@ -1,46 +1,42 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const { Resend } = require('@resend/client');
-require('dotenv').config();
+document.getElementById("contactform").addEventListener("submit", async function(event) {
+    event.preventDefault();
 
-const app = express();
-const port = 3000;
+    const name = document.getElementById("name").value;
+    const email = document.getElementById("email").value;
+    const message = document.getElementById("message").value;
+    const statusMessage = document.getElementById("contact-status");
 
-app.use(bodyParser.json());
+    // Prepare request body
+    const emailData = {
+        from: "your-email@yourdomain.com",  // Ensure this is a verified sender in Resend
+        to: "g_quezada3@yahoo.com",
+        subject: `New Message from ${name}`,
+        html: `<p><strong>Name:</strong> ${name}</p>
+               <p><strong>Email:</strong> ${email}</p>
+               <p><strong>Message:</strong> ${message}</p>`
+    };
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+    try {
+        const response = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": process.env.RESEND_API_KEY// Replace with your actual API key
+            },
+            body: JSON.stringify(emailData)
+        });
 
-// Endpoint to handle form submission
-app.post('/send-email', async (req, res) => {
-  const { name, email, message } = req.body;
-  
-
-  const emailContent = `
-    Name: ${name}
-    Email: ${email}
-    Message: ${message}
-  `;
-
-  try {
-    const response = await resend.emails.send({
-      from: email,
-      to: 'g.quezada03@gmail.com',
-      subject: 'New Contact Form Submission',
-      text: emailContent
-    });
-    
-
-    if (response.status === 'sent') {
-      res.json({ success: true });
-    } else {
-      res.json({ success: false });
+        if (response.ok) {
+            statusMessage.textContent = "Message sent successfully!";
+            statusMessage.style.color = "green";
+            document.getElementById("contactform").reset();
+        } else {
+            statusMessage.textContent = "Error sending message. Please try again.";
+            statusMessage.style.color = "red";
+        }
+    } catch (error) {
+        statusMessage.textContent = "Something went wrong. Please try again later.";
+        statusMessage.style.color = "red";
+        console.error("Error:", error);
     }
-  } catch (error) {
-    console.error(error);
-    res.json({ success: false });
-  }
-});
-
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
 });

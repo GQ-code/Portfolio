@@ -12,6 +12,7 @@
 	<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,300,800,700,400italic|PT+Serif:400,400italic"/>
     
     
+    
 </head>
     <body>
         <!-- Container -->
@@ -46,8 +47,7 @@
                  	<!-- About section -->
                 	<div class="about">
                     	<div class="Resume Photo-inner">
-                            <img id="profile-pic" src = "" height="186" width="153" /></li>
-                            <p id="bio"></p>
+                            <img id="profile-pic" src = "images/Resume Photo.jpg" height="186" width="153" /></li>
                         </div>
                         <h1>Gabriel Quezada</h1>
                         <h3>Software Engineer</h3>
@@ -63,6 +63,17 @@
                         <li><label>Email</label><span class="word-wrap">g.quezada03@gmail.com</span></li>
                         <li><label>Phone</label><span>(562)505-8633</span></li>
                         <li><label>Github</label><span class="word-wrap">https://github.com/GQ-code</span></li>
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#githubtab" data-parent="#myGroupButtons" aria-expanded="false"
+                                    aria-controls="githubtab">GitHub</button>
+
+                            <div style="min-height: 120px;">
+                                <div class="collapse collapse-vertical mt-3" id="githubtab" data-bs-parent="#jumbotron-slide">
+                                    <div class="card card-body" id="github" style="width: 300px; height: auto;">
+                                        <p></p> <!-- Initially show this message -->
+                                    </div>
+                                </div>
+                            </div>
                     </ul>
                     <!-- /Personal info section -->
 
@@ -77,6 +88,7 @@
 							Throughout my journey, I have worked on various projects that showcase my problem-solving skills and adaptability. I am eager to bring my technical expertise and enthusiasm for technology to a forward-thinking team. You can explore my projects and see my work firsthand in this portfolio.
 							<br><br>
 							Thank you for taking the time to explore my work. I look forward to connecting and discussing new opportunities. 
+    
                         </div>
                     </div>
                     <!-- /Cover letter -->
@@ -381,15 +393,15 @@
                         <form action="" id="contactform">
                             <p>
                             	<label for="name">Your Name</label>
-                            	<input type="text" name="name" class="input" >
+                            	<input type="text" name="name" id="name" class="input" >
                             </p>
                             <p>
                             	<label for="email">Your Email</label>
-                            	<input type="text" name="email" class="input">
+                            	<input type="text" name="email" id="email" class="input">
                             </p>
                             <p>
                             	<label for="message">Message</label>
-                                <textarea name="message" cols="88" rows="6" class="textarea" ></textarea>
+                                <textarea name="message" id="message" cols="88" rows="6" class="textarea" ></textarea>
                             </p>
                             <input type="submit" name="submit" value="Send your message" class="button transition">
                             <br>
@@ -428,59 +440,94 @@
     <script type="text/javascript" src="js/jquery.carousel.js"></script>
     <script type="text/javascript" src="js/plugins.js"></script>
     <script type="text/javascript" src="js/custom.js"></script>
+    
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        fetch('https://api.github.com/users/GQ-code')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('profile-pic').src = data.avatar_url;
-                document.getElementById('bio').textContent = data.bio;
-            })
-            .catch(error => console.error('Error fetching GitHub data:', error));
+        document.addEventListener('DOMContentLoaded', function() {
+        function loadGithubInfo() {
+
+            fetch('https://api.github.com/users/GQ-code')
+                .then(response => response.json())
+                .then(data => {
+                    const githubContent = `
+                        <h5><b>${data.name}</b></h5>
+                        <p><strong>Location:</strong> ${data.location || 'Not available'}</p>
+                        <p><strong>Public Repositories:</strong> ${data.public_repos}</p>
+                        <p><strong>Bio:</strong> ${data.bio || 'No bio available'}</p>
+                        <p><strong>Followers:</strong> ${data.followers}</p>
+                        <p><strong>Following:</strong> ${data.following}</p>
+                    `;
+
+                    document.getElementById('github').innerHTML = githubContent; // Update content inside the card
+                })
+                .catch(error => {
+                    console.error('Error fetching GitHub data:', error);
+                    document.getElementById('github').innerHTML = '<p>There was an error loading the GitHub data.</p>';
+                });
+        }
+
+        
+        const githubCollapse = document.getElementById('githubtab');
+        githubCollapse.addEventListener('shown.bs.collapse', function () {
+            loadGithubInfo();
+        });
+
+        githubCollapse.addEventListener('hidden.bs.collapse', function () {
+        document.getElementById('github').innerHTML = '';
+    });
+    });
     </script>
 
     <script>
-        document.getElementById('contactform').addEventListener('submit', async function (event) {
-          event.preventDefault();
-          
-          
-          const name = document.querySelector('input[name="name"]').value;
-          const email = document.querySelector('input[name="email"]').value;
-          const message = document.querySelector('textarea[name="message"]').value;
-          
-          
-          const formData = {
-            name: name,
-            email: email,
-            message: message
-          };
-          
-          // Display loading status
-          document.getElementById('contact-status').innerText = 'Sending...';
-          
-          try {
-            const response = await fetch('/send-email', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(formData)
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-              document.getElementById('contact-status').innerText = 'Message sent successfully!';
-            } else {
-              document.getElementById('contact-status').innerText = 'Something went wrong, please try again.';
-            }
-            
-          } catch (error) {
-            document.getElementById('contact-status').innerText = 'Error sending message. Please try again later.';
-            console.error(error);
-          }
+        document.getElementById("contactform").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const message = document.getElementById("message").value;
+            const statusMessage = document.getElementById("contact-status");
+
+            // Prepare request body
+            const emailData = {
+                from: `${email}`, 
+                to: "g.quezada03@yahoo.com",
+                subject: `New Message from ${name}`,
+                html: `<p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Message:</strong> ${message}</p>`
+            };
+
+            try {
+                const response = await fetch("https://api.resend.com/emails", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer re_dc1JySV9_2Bg4wwvUwREZgmzrxNHcVP2V"
+                    },
+                    body: JSON.stringify(emailData)
+                });
+
+                console.log("Response status:", response.status);  // Log the response status
+
+                const responseBody = await response.json();  // Capture the response body
+                console.log("Response body:", responseBody); // Log the response body
+
+                if (response.ok) {
+                    statusMessage.textContent = "Message sent successfully!";
+                    statusMessage.style.color = "green";
+                    document.getElementById("contactform").reset();
+                } else {
+                    statusMessage.textContent = "Error sending message. Please try again.";
+                    statusMessage.style.color = "red";
+                }
+                } catch (error) {
+                statusMessage.textContent = "Something went wrong. Please try again later.";
+                statusMessage.style.color = "red";
+                console.error("Error:", error);
+                }
         });
-      </script>
+    </script>
 
     <!--[if lt IE 9]>
         <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
